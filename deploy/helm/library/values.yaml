@@ -1,0 +1,111 @@
+# Copyright (c) 2024 Aleksei Kotelnikov(gudron2s@gmail.com)
+# License: MIT NON-AI
+
+terraformer:
+  replicaCount: 1
+
+  resources:
+    limits:
+      cpu: 2500m
+      memory: 128Mi
+    requests:
+      cpu: 500m
+      memory: 96Mi
+
+  autoscaling:
+    enabled: false
+    minReplicas: 3
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  nameOverride: "bc-wallet-common-trrfrm"
+  fullnameOverride: ""
+
+  serviceAccount:
+    create: true
+    annotations: {}
+    name: "bc-wallet-common-trrfrm"
+
+  podSecurityContext: {}
+  # fsGroup: 2000
+
+  securityContext:
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 1000
+
+  imagePullSecrets: []
+
+  podAnnotations: {}
+
+  hook:
+    weight: -5
+
+  db:
+    host:
+      _default: "postgresql.default.svc.cluster.local"
+    port:
+      _default: 5432
+
+    name:
+      _default: bc-wallet-common-trrfrm
+
+    schema:
+      _default: bc-wallet-common-trrfrm
+
+  env:
+    file_name:
+      _default: env
+
+  vault:
+    host:
+      _default: "vault.default.svc.cluster.local"
+    port:
+      _default: 8200
+
+    agent:
+      inject:
+        _default: true
+
+      role:
+        _default: bc-wallet-common-trrfrm
+
+      inject_perms:
+        _default: 0664
+
+      inject_token:
+        _default: true
+
+      inject_secret_path: 'kv/data/crypto-bundle/bc-wallet-common/trrfrm'
+
+      inject_template: |
+        {{- with secret "kv/data/crypto-bundle/bc-wallet-common/trrfrm" -}}
+        {{- PGPASSWORD=.Data.data.POSTGRESQL_PASSWORD -}}
+        {{- PGUSER=.Data.data.POSTGRESQL_USERNAME -}}
+        {{- end -}}
+
+      init_first:
+        _default: true
+
+      pre_populate:
+        _default: true
+
+    token_path:
+      _default: /vault/secrets/token
+
+  cli_arguments:
+    - name: "k8s_namespace"
+      value: "{{ .Release.Namespace }}"
+
+  image:
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    path: repository.local/crypto-bundle/bc-wallet-common-hdwallet-trrfrmr
+    tag: latest

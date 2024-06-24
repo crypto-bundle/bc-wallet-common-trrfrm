@@ -1,0 +1,73 @@
+{{/*
+Copyright (c) 2024 Aleksei Kotelnikov(gudron2s@gmail.com)
+License: MIT NON-AI
+*/}}
+
+{{- define "bc-wallet-common-trrfrmr.job.tpl" -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "app.name" . }}
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": {{ .Values.terraformer.hook.weight | quote }}
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    metadata:
+      name: {{ include "app.name" . }}
+      labels:
+        {{- include "app.selectorLabels" . | nindent 8 }}
+      annotations:
+      {{- with .Values.terraformer.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+        {{- include "_vault_agent_annotations" . | nindent 8 }}
+    spec:
+      restartPolicy: Never
+      {{- with .Values.terraformer.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: {{ include "app.name" . }}-providers
+          emptyDir: {}
+      serviceAccountName: {{ .Values.terraformer.serviceAccount.name | quote }}
+      initContainers:
+        - name: {{ include "app.name" . }}-init
+          image: {{ .Values.terraformer.image.path }}:{{ .Values.terraformer.image.tag }}
+          imagePullPolicy: {{ .Values.terraformer.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.terraformer.securityContext | nindent 12 }}
+          resources:
+            {{- toYaml .Values.terraformer.resources | nindent 12 }}
+          volumeMounts:
+            - name: {{ include "app.name" . }}-providers
+              mountPath: /opt/trrfrm/.terraform/providers
+          env:
+            {{- include "_env_app_terraform" . | nindent 12 }}
+          command: [ "/bin/terraform", "-chdir=/opt/trrfrm", "init" ]
+          args:
+            - "-var=k8s_namespace='{{ .Release.Namespace}}'"
+
+      containers:
+        - name: {{ include "app.name" . }}-apply
+          image: {{ .Values.terraformer.image.path }}:{{ .Values.terraformer.image.tag }}
+          imagePullPolicy: {{ .Values.terraformer.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.terraformer.securityContext | nindent 12 }}
+          resources:
+            {{- toYaml .Values.terraformer.resources | nindent 12 }}
+          volumeMounts:
+            - name: {{ include "app.name" . }}-providers
+              mountPath: /opt/trrfrm/.terraform/providers
+          env:
+            {{- include "_env_app_terraform" . | nindent 12 }}
+          command: [ "/bin/terraform" , "-chdir=/opt/trrfrm", "apply", "-auto-approve"]
+          args:
+          {{- range $key, $argument := .Values.terraformer.cli_arguments }}
+            - "var={{ $argument.name }}='{{ tpl $argument.value $ }}'"
+          {{- end }}
+{{- end -}}
