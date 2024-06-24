@@ -52,3 +52,10 @@ vault.hashicorp.com/agent-inject-secret-{{ .Values.terraformer.env.file_name._de
 vault.hashicorp.com/agent-inject-template-{{ .Values.terraformer.env.file_name._default | base}}: |
 {{- .Values.terraformer.vault.agent.inject_template | nindent 2 }}
 {{- end }}
+
+{{/*
+Expand the name of the chart.
+*/}}
+{{- define "pv.prefix" -}}
+bc-wallet-common-trrfrm
+{{- end }}

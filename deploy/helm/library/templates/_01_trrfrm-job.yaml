@@ -15,6 +15,7 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
+  backoffLimit: 4
   template:
     metadata:
       name: {{ include "app.name" . }}
@@ -32,8 +33,17 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
-        - name: {{ include "app.name" . }}-providers
+        - name: {{ include "app.name" . }}-dot-dir
           emptyDir: {}
+        - name: {{ include "app.name" . }}-tmp-dir
+          emptyDir: {}
+        - name: {{ include "pv.prefix" . }}-providers-pv-storage
+          persistentVolumeClaim:
+            claimName: {{ include "pv.prefix" . }}-providers-pv-claim
+      {{- with .Values.terraformer.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       serviceAccountName: {{ .Values.terraformer.serviceAccount.name | quote }}
       initContainers:
         - name: {{ include "app.name" . }}-init
@@ -44,8 +54,12 @@ spec:
           resources:
             {{- toYaml .Values.terraformer.resources | nindent 12 }}
           volumeMounts:
-            - name: {{ include "app.name" . }}-providers
-              mountPath: /opt/trrfrm/.terraform/providers
+            - name: {{ include "app.name" . }}-dot-dir
+              mountPath: /opt/trrfrm/.terraform
+            - name: {{ include "app.name" . }}-tmp-dir
+              mountPath: /tmp
+            - name: {{ include "pv.prefix" . }}-providers-pv-storage
+              mountPath: {{ .Values.terraformer.providersStorage.mountPath }}
           env:
             {{- include "_env_app_terraform" . | nindent 12 }}
           command:
@@ -67,8 +81,12 @@ spec:
           resources:
             {{- toYaml .Values.terraformer.resources | nindent 12 }}
           volumeMounts:
-            - name: {{ include "app.name" . }}-providers
-              mountPath: /opt/trrfrm/.terraform/providers
+            - name: {{ include "app.name" . }}-dot-dir
+              mountPath: /opt/trrfrm/.terraform
+            - name: {{ include "app.name" . }}-tmp-dir
+              mountPath: /tmp
+            - name: {{ include "pv.prefix" . }}-providers-pv-storage
+              mountPath: {{ .Values.terraformer.providersStorage.mountPath }}
           env:
             {{- include "_env_app_terraform" . | nindent 12 }}
           command:

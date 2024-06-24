@@ -1,4 +1,9 @@
 terraformer:
   nameOverride: "bc-wallet-common-trrfrm-base"
 
+  dataStorage:
+    enable: true
+    mountPath: "/vault/data"
+  #    storageClass: "openebs-hostpath"
+
   jobAnnotations: {}

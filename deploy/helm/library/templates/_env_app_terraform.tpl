@@ -20,4 +20,6 @@ License: MIT NON-AI
   value: {{ pluck .Values.global.env .Values.terraformer.db.ssl_mode | first | default .Values.terraformer.db.ssl_mode._default | quote }}
 - name: PG_SCHEMA_NAME
   value: {{ pluck .Values.global.env .Values.terraformer.db.schema | first | default .Values.terraformer.db.schema._default | quote }}
+- name: TF_DATA_DIR
+  value: /opt/trrfrm/.terraform
 {{- end }}

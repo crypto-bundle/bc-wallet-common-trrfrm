@@ -51,6 +51,14 @@ deploy:
 
 	helm --kube-context $(context) dependency update ./deploy/helm/init
 
+	helm --kube-context $(context) template --debug \
+		--set "global.env=$(env)" \
+		--set "terraformer.image.path=$(target_container_path)" \
+		--set "terraformer.image.tag=$(build_tag)" \
+		--values=./deploy/helm/init/values.yaml \
+		--values=./deploy/helm/init/values_local.yaml \
+		./deploy/helm/init > job.yaml
+
 	helm --kube-context $(context) upgrade \
 		--install bc-wallet-common-trrfrmr-base \
 		--set "global.env=$(env)" \

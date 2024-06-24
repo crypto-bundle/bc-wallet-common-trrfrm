@@ -40,12 +40,21 @@ terraformer:
     readOnlyRootFilesystem: true
     runAsNonRoot: true
     runAsUser: 1000
+    fsGroup: 1000
 
   imagePullSecrets: []
 
   jobAnnotations: {}
 
   podAnnotations: {}
+
+  providersStorage:
+    enabled: true
+    size: 2Gi
+    mountPath: "/opt/trrfrm/.terraform/providers"
+    storageClass: openebs-hostpath
+    accessMode: ReadWriteOnce
+    annotations: {}
 
   hook:
     enabled: false

@@ -51,4 +51,6 @@ set -o allexport
 source $ENV_FILE_PATH
 set +o allexport
 
+while true; do sleep 15 ; echo "background"; done
+
 exec "$@"
