@@ -31,14 +31,24 @@
 
 set -e
 
-TOKEN_FILE_PATH="${$VAULT_AUTH_TOKEN_FILE_PATH:-/vault/secrets/token}"
+if [[ -z "${VAULT_AUTH_TOKEN_FILE_PATH}" ]]; then
+  TOKEN_FILE_PATH="/vault/secrets/token" # default value
+else
+  TOKEN_FILE_PATH="${VAULT_AUTH_TOKEN_FILE_PATH}"
+fi
+
+if [[ -z "${APP_LOCAL_ENV_FILE_PATH}" ]]; then
+  ENV_FILE_PATH="/vault/secrets/env" # default value
+else
+  ENV_FILE_PATH="${APP_LOCAL_ENV_FILE_PATH}"
+fi
 
 if test -f $TOKEN_FILE_PATH; then
   export VAULT_TOKEN=$(cat $TOKEN_FILE_PATH)
 fi
 
 set -o allexport
-source $APP_LOCAL_ENV_FILE_PATH
+source $ENV_FILE_PATH
 set +o allexport
 
 exec "$@"

@@ -1,2 +1,4 @@
 terraformer:
   nameOverride: "bc-wallet-common-trrfrm-base"
+
+  jobAnnotations: {}

@@ -48,7 +48,7 @@ vault.hashicorp.com/agent-init-first: {{ pluck .Values.global.env .Values.terraf
 vault.hashicorp.com/agent-pre-populate-only: {{ pluck .Values.global.env .Values.terraformer.vault.agent.pre_populate | first | default .Values.terraformer.vault.agent.pre_populate._default | quote }}
 vault.hashicorp.com/agent-inject-token: {{ pluck .Values.global.env .Values.terraformer.vault.agent.inject_token | first | default .Values.terraformer.vault.agent.inject_token._default | quote }}
 vault.hashicorp.com/agent-run-as-user: {{ .Values.terraformer.securityContext.runAsUser | quote }}
-vault.hashicorp.com/agent-inject-secret-{{ .Values.terraformer.env.file_name._default }}: {{ .Values.terraformer.vault.agent.inject_secret_path | quote }}
-vault.hashicorp.com/agent-inject-template-{{ .Values.terraformer.env.file_name._default }}: |
+vault.hashicorp.com/agent-inject-secret-{{ .Values.terraformer.env.file_name._default | base }}: {{ .Values.terraformer.vault.agent.inject_secret_path | quote }}
+vault.hashicorp.com/agent-inject-template-{{ .Values.terraformer.env.file_name._default | base}}: |
 {{- .Values.terraformer.vault.agent.inject_template | nindent 2 }}
 {{- end }}

@@ -10,10 +10,10 @@ metadata:
   name: {{ include "app.name" . }}
   labels:
     {{- include "app.labels" . | nindent 4 }}
+  {{- with .Values.terraformer.jobAnnotations }}
   annotations:
-    "helm.sh/hook": pre-install,pre-upgrade
-    "helm.sh/hook-weight": {{ .Values.terraformer.hook.weight | quote }}
-    "helm.sh/hook-delete-policy": hook-succeeded
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   template:
     metadata:
@@ -48,9 +48,15 @@ spec:
               mountPath: /opt/trrfrm/.terraform/providers
           env:
             {{- include "_env_app_terraform" . | nindent 12 }}
-          command: [ "/bin/terraform", "-chdir=/opt/trrfrm", "init" ]
+          command:
+            - "/usr/local/bin/entrypoint.sh"
+            - "/bin/terraform"
+            - "-chdir=/opt/trrfrm"
+            - "init"
           args:
-            - "-var=k8s_namespace='{{ .Release.Namespace}}'"
+          {{- range $key, $argument := .Values.terraformer.cli_arguments }}
+            - "-var={{ $argument.name }}='{{ tpl $argument.value $ }}'"
+          {{- end }}
 
       containers:
         - name: {{ include "app.name" . }}-apply
@@ -65,9 +71,14 @@ spec:
               mountPath: /opt/trrfrm/.terraform/providers
           env:
             {{- include "_env_app_terraform" . | nindent 12 }}
-          command: [ "/bin/terraform" , "-chdir=/opt/trrfrm", "apply", "-auto-approve"]
+          command:
+            - "/usr/local/bin/entrypoint.sh"
+            - "/bin/terraform"
+            - "-chdir=/opt/trrfrm"
+            - "apply"
+            - "-auto-approve"
           args:
           {{- range $key, $argument := .Values.terraformer.cli_arguments }}
-            - "var={{ $argument.name }}='{{ tpl $argument.value $ }}'"
+            - "-var={{ $argument.name }}='{{ tpl $argument.value $ }}'"
           {{- end }}
 {{- end -}}
