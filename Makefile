@@ -35,6 +35,7 @@ deploy:
 	$(eval build_tag=$(env)-$(git_short)-$(shell date +%s))
 	$(eval parent_container_path=$(repository)/crypto-bundle/bc-wallet-common-trrfrm:latest)
 	$(eval target_container_path=$(repository)/crypto-bundle/bc-wallet-common-trrfrm-base)
+	$(eval trfrm_working_dir=$(or $(working_dir),/opt/trrfrm))
 	$(eval context=$(or $(context),k0s-dev-cluster))
 	$(eval platform=$(or $(platform),linux/amd64))
 
@@ -42,13 +43,14 @@ deploy:
 		--ssh default=$(SSH_AUTH_SOCK) \
 		--platform $(platform) \
 		--build-arg PARENT_CONTAINER_IMAGE_NAME=$(parent_container_path) \
+		--build-arg TRFRM_DIR=$(trfrm_working_dir) \
 		--tag $(target_container_path):$(build_tag) \
 		--tag $(target_container_path):latest \
-		-f base.dockerfile .
+		-f init.dockerfile .
 
 	docker push $(target_container_path):$(build_tag)
 	docker push $(target_container_path):latest
-
+#
 	helm --kube-context $(context) dependency update ./deploy/helm/init
 
 	helm --kube-context $(context) template --debug \

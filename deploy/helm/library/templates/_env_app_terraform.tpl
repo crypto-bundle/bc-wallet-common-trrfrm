@@ -7,7 +7,7 @@ License: MIT NON-AI
 - name: APP_LOCAL_ENV_FILE_PATH
   value: {{ pluck .Values.global.env .Values.terraformer.env.file_name | first | default .Values.terraformer.env.file_name._default | quote }}
 - name: VAULT_ADDR
-  value: {{ pluck .Values.global.env .Values.terraformer.vault.host | first | default .Values.terraformer.vault.host._default | quote }}
+  value: {{ include "vault.addr" . | quote }}
 - name: VAULT_AUTH_TOKEN_FILE_PATH
   value: {{ pluck .Values.global.env .Values.terraformer.vault.token_path | first | default .Values.terraformer.vault.token_path._default | quote }}
 - name: PGHOST
@@ -20,6 +20,10 @@ License: MIT NON-AI
   value: {{ pluck .Values.global.env .Values.terraformer.db.ssl_mode | first | default .Values.terraformer.db.ssl_mode._default | quote }}
 - name: PG_SCHEMA_NAME
   value: {{ pluck .Values.global.env .Values.terraformer.db.schema | first | default .Values.terraformer.db.schema._default | quote }}
-- name: TF_DATA_DIR
-  value: /opt/trrfrm/.terraform
+- name: TRFRM_SOURCE_DIR
+  value: {{ pluck .Values.global.env .Values.terraformer.terrraformDirectory.source_code | first | default .Values.terraformer.terrraformDirectory.source_code._default | quote }}
+- name: TRFRM_WORK_DIR
+  value: {{ pluck .Values.global.env .Values.terraformer.terrraformDirectory.work | first | default .Values.terraformer.terrraformDirectory.work._default | quote }}
+- name: TRFRM_DATA_DIR
+  value: {{ pluck .Values.global.env .Values.terraformer.terrraformDirectory.data | first | default .Values.terraformer.terrraformDirectory.data._default | quote }}
 {{- end }}

@@ -15,7 +15,7 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  backoffLimit: 4
+  backoffLimit: 0
   template:
     metadata:
       name: {{ include "app.name" . }}
@@ -55,19 +55,15 @@ spec:
             {{- toYaml .Values.terraformer.resources | nindent 12 }}
           volumeMounts:
             - name: {{ include "app.name" . }}-dot-dir
-              mountPath: /opt/trrfrm/.terraform
+              mountPath: {{ pluck .Values.global.env .Values.terraformer.terrraformDirectory.work | first | default .Values.terraformer.terrraformDirectory.work._default | quote }}
             - name: {{ include "app.name" . }}-tmp-dir
               mountPath: /tmp
             - name: {{ include "pv.prefix" . }}-providers-pv-storage
-              mountPath: {{ .Values.terraformer.providersStorage.mountPath }}
+              mountPath: {{ pluck .Values.global.env .Values.terraformer.terrraformDirectory.data | first | default .Values.terraformer.terrraformDirectory.data._default | quote }}
           env:
             {{- include "_env_app_terraform" . | nindent 12 }}
-          command:
-            - "/usr/local/bin/entrypoint.sh"
-            - "/bin/terraform"
-            - "-chdir=/opt/trrfrm"
-            - "init"
           args:
+            - "init"
           {{- range $key, $argument := .Values.terraformer.cli_arguments }}
             - "-var={{ $argument.name }}='{{ tpl $argument.value $ }}'"
           {{- end }}
@@ -82,20 +78,16 @@ spec:
             {{- toYaml .Values.terraformer.resources | nindent 12 }}
           volumeMounts:
             - name: {{ include "app.name" . }}-dot-dir
-              mountPath: /opt/trrfrm/.terraform
+              mountPath: {{ pluck .Values.global.env .Values.terraformer.terrraformDirectory.work | first | default .Values.terraformer.terrraformDirectory.work._default | quote }}
             - name: {{ include "app.name" . }}-tmp-dir
               mountPath: /tmp
             - name: {{ include "pv.prefix" . }}-providers-pv-storage
-              mountPath: {{ .Values.terraformer.providersStorage.mountPath }}
+              mountPath: {{ pluck .Values.global.env .Values.terraformer.terrraformDirectory.data | first | default .Values.terraformer.terrraformDirectory.data._default | quote }}
           env:
             {{- include "_env_app_terraform" . | nindent 12 }}
-          command:
-            - "/usr/local/bin/entrypoint.sh"
-            - "/bin/terraform"
-            - "-chdir=/opt/trrfrm"
+          args:
             - "apply"
             - "-auto-approve"
-          args:
           {{- range $key, $argument := .Values.terraformer.cli_arguments }}
             - "-var={{ $argument.name }}='{{ tpl $argument.value $ }}'"
           {{- end }}

@@ -59,3 +59,16 @@ Expand the name of the chart.
 {{- define "pv.prefix" -}}
 bc-wallet-common-trrfrm
 {{- end }}
+
+{{/*
+Expand the name of the chart.
+*/}}
+{{- define "vault.addr" -}}
+{{- $host := pluck .Values.global.env .Values.terraformer.vault.host | first | default .Values.terraformer.vault.host._default -}}
+{{- $port := pluck .Values.global.env .Values.terraformer.vault.port | first | default .Values.terraformer.vault.port._default | int -}}
+{{- $schema := "http://" -}}
+{{- if pluck .Values.global.env .Values.terraformer.vault.use_https | first | default .Values.terraformer.vault.use_https._default -}}
+    {{- $schema = "https://" -}}
+{{- end -}}
+{{- printf "%s%s:%d" $schema $host $port -}}
+{{- end -}}

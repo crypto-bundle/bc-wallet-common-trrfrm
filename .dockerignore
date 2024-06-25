@@ -1,5 +1,7 @@
-
 ./build/*
 ./docs
+
+deploy/trrfrm/*/.terraform/*
+deploy/trrfrm/*/.terraform.lock.hcl
 
 docker-compose.yaml

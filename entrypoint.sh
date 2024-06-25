@@ -47,10 +47,32 @@ if test -f $TOKEN_FILE_PATH; then
   export VAULT_TOKEN=$(cat $TOKEN_FILE_PATH)
 fi
 
-set -o allexport
-source $ENV_FILE_PATH
-set +o allexport
+if [[ -z "${TRFRM_WORK_DIR}" ]]; then
+  export TRFRM_WORK_DIR="/opt/trrfrm/work/" # default value
+fi
 
-while true; do sleep 15 ; echo "background"; done
+if [[ -z "${TRFRM_DATA_DIR}" ]]; then
+  export TRFRM_DATA_DIR="$TRFRM_WORK_DIR/.terraform" # default value
+fi
 
-exec "$@"
+if [[ -z "${TF_DATA_DIR}" ]]; then
+  export TF_DATA_DIR=$TRFRM_DATA_DIR # default value
+fi
+
+if [[ -z "${TRFRM_SOURCE_DIR}" ]]; then
+  export TRFRM_SOURCE_DIR="/opt/trrfrm/source" # default value
+fi
+
+echo "/bin/terraform -chdir=$TRFRM_WORK_DIR" $*
+
+cp -R $TRFRM_SOURCE_DIR/. $TRFRM_WORK_DIR/
+
+ls -l $TRFRM_WORK_DIR
+
+if test -f $ENV_FILE_PATH; then
+  set -o allexport
+  source $ENV_FILE_PATH
+  set +o allexport
+fi
+
+exec /bin/terraform -chdir=$TRFRM_WORK_DIR "$@"

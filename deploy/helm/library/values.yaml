@@ -40,7 +40,6 @@ terraformer:
     readOnlyRootFilesystem: true
     runAsNonRoot: true
     runAsUser: 1000
-    fsGroup: 1000
 
   imagePullSecrets: []
 
@@ -48,10 +47,19 @@ terraformer:
 
   podAnnotations: {}
 
+  terrraformDirectory:
+    source_code:
+      _default: /opt/trrfrm/source
+
+    work:
+      _default: /opt/trrfrm/work
+
+    data:
+      _default: /opt/trrfrm/work/.terraform
+
   providersStorage:
     enabled: true
     size: 2Gi
-    mountPath: "/opt/trrfrm/.terraform/providers"
     storageClass: openebs-hostpath
     accessMode: ReadWriteOnce
     annotations: {}
@@ -84,6 +92,8 @@ terraformer:
       _default: "vault.default.svc.cluster.local"
     port:
       _default: 8200
+    use_https:
+      _default: false
 
     agent:
       inject:
