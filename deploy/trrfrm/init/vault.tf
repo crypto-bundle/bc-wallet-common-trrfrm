@@ -2,8 +2,18 @@ resource "vault_policy" "trrfrm_application_access_policy" {
   name = "trrfrm-app-policy"
 
   policy = <<EOT
-path "kv/data/crypto-bundle/bc-wallet-common/trrfrm" {
-  capabilities = ["read", "list"]
+path "kv/data/crypto-bundle/*" {
+  capabilities = ["create", "read", "update", "patch", "delete", "list"]
+}
+EOT
+}
+
+resource "vault_policy" "trrfrm_transit_access_policy" {
+  name = "trrfrm-transit-policy"
+
+  policy = <<EOT
+path "transit/+/crypto-bundle-*" {
+  capabilities = ["create", "read", "update", "patch", "delete", "list"]
 }
 EOT
 }
@@ -20,6 +30,7 @@ resource "vault_kubernetes_auth_backend_role" "hdwallet_application_auth_role" {
   token_ttl                        = 3600
   token_policies                   = [
     vault_policy.trrfrm_application_access_policy.name,
+    vault_policy.trrfrm_transit_access_policy.name,
   ]
   audience                         = ""
 }
