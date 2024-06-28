@@ -54,7 +54,7 @@ deploy:
 	$(eval git_short=$(or $(shell git rev-parse --short HEAD),0000000))
 	$(eval build_tag=$(env)-$(git_short)-$(shell date +%s))
 	$(eval parent_container_path=$(repository)/crypto-bundle/bc-wallet-common-trrfrm:latest)
-	$(eval target_container_path=$(repository)/crypto-bundle/bc-wallet-common-trrfrm-base)
+	$(eval target_container_path=$(repository)/crypto-bundle/bc-wallet-common-trrfrm-self-init:latest)
 	$(eval trfrm_working_dir=$(or $(working_dir),/opt/trrfrm))
 	$(eval context=$(or $(context),k0s-dev-cluster))
 	$(eval platform=$(or $(platform),linux/amd64))

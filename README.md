@@ -5,11 +5,23 @@
 Toolchain for infrastructure preparation flow. Repository contains library Helm-chart for running Terraform jobs. 
 Also, repository contains base Docker Terraform wrapper image.
 
+Trrfrm is wrapper for Hashicorp Terraform application. Trrfrm uses PostgreSQL for store terraform state.
+Secret and sensitive data for Trrfrm retrives from Hashcopr Vault.
+
 ## Trrfrm-Job library chart
+
+[Library Helm](./deploy/helm/library/Chart.yaml) chart of Trrfrm-Job. You can write custom Helm-carts which will be based on base chart.
+
+Full Helm library-chart description located in [library README.md](./deploy/helm/library/README.md) file.
 
 ## Init Trrfrm-Job
 
-Start of deployment crypto-bundle project is here. You must start from deployment of `bc-wallet-common-trrfrmr-base` kubernetes job.
+Start of crypto-bundle project deployment is here. Before deploy other crypto-bundle charts u must deploy `bc-wallet-common-trrfrmr-base` kubernetes job.
+
+Bc-wallet-common-trrfrm-init terraform source code located in [./deploy/trrfrm/init](./deploy/trrfrm/init) directory.
+Helm-chart is located in [./deploy/helm/init](./deploy/helm/init) directory.
+
+Full Helm chart description located in [chart README.md](./deploy/helm/init/README.md) file.
 
 ### Deployment
 
@@ -31,6 +43,8 @@ vault kv put -mount=kv crypto-bundle/bc-wallet-common/trrfrm/init POSTGRESQL_USE
 That's all. Preparation jobs done. Now you can deploy `bc-wallet-common-trrfrmr-base` Helm-chart.
 
 #### Environment variables
+
+Trrfrm application works with the following environment variables:
 
 * `VAULT_ADDR` - address of Hashicorp Vault server.
 * `VAULT_AUTH_TOKEN_FILE_PATH` - path to file contains Hashicorp Vault authorization token.
@@ -55,9 +69,76 @@ Some environment variables, like `PGPASSWORD` and `PGUSER` passed to Kubernetes 
 through [Vault Secret injection](https://developer.hashicorp.com/vault/docs/platform/k8s/injector/examples).
 You can control it via [values.yaml](deploy/helm/library/values.yaml) file.
 
+#### Build
+
+Before deploy helm chart you must build two docker images:
+* Base Trrfrm container image
+* CryptoBundle self-init Trrfrm image
+
+Example of base image building
+
+Build arguments:
+* `PARENT_CONTAINER_IMAGE_NAME` - parent container image is **base Trrfrm image** - `hashicorp/terraform:latest`
+* `TRFRM_SOURCE_DIR` - directory which contains terraform source code of project. By default - `/opt/trrfrm/source`
+* `TRFRM_WORK_DIR` - common work directory for all Trrfrm Job instances. Default value - `/opt/trrfrm/work`
+* `TRFRM_DATA_DIR` - .terraform data directory for project. by default - $TRFRM_WORK_DIR/$TRFRM_PROJECT_NAME/.terraform
+
+```bash
+docker build \
+  --ssh default=$(SSH_AUTH_SOCK) \
+  --platform linux/amd64 \
+  --build-arg PARENT_CONTAINER_IMAGE_NAME=hashicorp/terraform:latest \
+  --tag bc-wallet-common-trrfrm:v0.0.1 \
+  --tag bc-wallet-common-trrfrm:latest \
+  -f trrfrm-base.dockerfile .
+
+docker push bc-wallet-common-trrfrm:v0.0.1
+docker push bc-wallet-common-trrfrm:latest
+```
+
+Example of building self-init Trrfrm image
+
+Build arguments:
+* `PARENT_CONTAINER_IMAGE_NAME` - parent container image is **base Trrfrm image** - `bc-wallet-common-trrfrm:latest`
+* `TRFRM_PROJECT_NAME` - Trrfrm project name. For exmaple - project name for **bc-wallet-tron-hdwallet** application - `bc-wallet-tron-hdwallet`.
+  For Trrfrm init project - `bc-wallet-common-trrfrm`.
+* `TRFRM_SOURCE_DIR` - directory which contains terraform source code of project. By default - `/opt/trrfrm/source`
+
+```bash
+docker build \
+  --ssh default=$(SSH_AUTH_SOCK) \
+  --platform linux/amd64 \
+  --build-arg PARENT_CONTAINER_IMAGE_NAME=bc-wallet-common-trrfrm:latest \
+  --build-arg TRFRM_PROJECT_NAME=bc-wallet-common-trrfr \
+  --build-arg TRFRM_SOURCE_DIR=/opt/trrfrm/source \
+  --tag bc-wallet-common-trrfrm-self-init:v0.0.1 \
+  --tag bc-wallet-common-trrfrm-self-init:latest \
+  -f trrfrm-self-init.dockerfile .
+
+docker push bc-wallet-common-trrfrm-self-init:v0.0.1
+docker push bc-wallet-common-trrfrm-self-init:latest
+```
+gcam 
 #### Configure
+You can configure settings of Trrfrm kubernetes by edit [values.yaml](./deploy/helm/init/values.yaml) or
+[values_local.yaml](./deploy/helm/init/values_local.yaml) files.
+The values in these files overwrite the default values of [Trrfrm library chart](./deploy/helm/library/Chart.yaml)
 
 #### Install
+You can deploy Trrfrm Job application via Helm.
+
+```bash
+helm --kube-context $(context) dependency update ./deploy/helm/init
+
+helm --kube-context $(context) upgrade \
+      --install $(trrfrm_project_name) \
+      --set "global.env=$(env)" \
+      --set "terraformer.image.path=$(target_container_path)" \
+      --set "terraformer.image.tag=$(build_tag)" \
+      --values=./deploy/helm/init/values.yaml \
+      --values=./deploy/helm/init/values_local.yaml \
+      ./deploy/helm/init
+```
 
 ## Contributors
 * Author and maintainer - [@gudron (Alex V Kotelnikov)](https://github.com/gudron)
