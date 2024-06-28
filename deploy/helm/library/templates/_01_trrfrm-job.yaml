@@ -33,8 +33,6 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
-        - name: {{ include "app.name" . }}-dot-dir
-          emptyDir: {}
         - name: {{ include "app.name" . }}-tmp-dir
           emptyDir: {}
         - name: {{ include "pv.prefix" . }}-providers-pv-storage
@@ -46,6 +44,7 @@ spec:
       {{- end }}
       serviceAccountName: {{ .Values.terraformer.serviceAccount.name | quote }}
       initContainers:
+{{/*        {{- include "subchart.init.containers" . | nindent 8 }}*/}}
         - name: {{ include "app.name" . }}-init
           image: {{ .Values.terraformer.image.path }}:{{ .Values.terraformer.image.tag }}
           imagePullPolicy: {{ .Values.terraformer.image.pullPolicy }}
@@ -54,12 +53,10 @@ spec:
           resources:
             {{- toYaml .Values.terraformer.resources | nindent 12 }}
           volumeMounts:
-            - name: {{ include "app.name" . }}-dot-dir
-              mountPath: {{ pluck .Values.global.env .Values.terraformer.terrraformDirectory.work | first | default .Values.terraformer.terrraformDirectory.work._default | quote }}
             - name: {{ include "app.name" . }}-tmp-dir
               mountPath: /tmp
             - name: {{ include "pv.prefix" . }}-providers-pv-storage
-              mountPath: {{ pluck .Values.global.env .Values.terraformer.terrraformDirectory.data | first | default .Values.terraformer.terrraformDirectory.data._default | quote }}
+              mountPath: {{ pluck .Values.global.env .Values.terraformer.terrraformDirectory.work | first | default .Values.terraformer.terrraformDirectory.work._default | quote }}
           env:
             {{- include "_env_app_terraform" . | nindent 12 }}
           args:
@@ -77,12 +74,10 @@ spec:
           resources:
             {{- toYaml .Values.terraformer.resources | nindent 12 }}
           volumeMounts:
-            - name: {{ include "app.name" . }}-dot-dir
-              mountPath: {{ pluck .Values.global.env .Values.terraformer.terrraformDirectory.work | first | default .Values.terraformer.terrraformDirectory.work._default | quote }}
             - name: {{ include "app.name" . }}-tmp-dir
               mountPath: /tmp
             - name: {{ include "pv.prefix" . }}-providers-pv-storage
-              mountPath: {{ pluck .Values.global.env .Values.terraformer.terrraformDirectory.data | first | default .Values.terraformer.terrraformDirectory.data._default | quote }}
+              mountPath: {{ pluck .Values.global.env .Values.terraformer.terrraformDirectory.work | first | default .Values.terraformer.terrraformDirectory.work._default | quote }}
           env:
             {{- include "_env_app_terraform" . | nindent 12 }}
           args:

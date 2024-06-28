@@ -1,5 +1,39 @@
+pg:
+  resources:
+    limits:
+      cpu: 2500m
+      memory: 128Mi
+    requests:
+      cpu: 500m
+      memory: 96Mi
+
+  securityContext:
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 1000
+
+  image:
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    path: repository.local/crypto-bundle/bc-wallet-common-trrfrmr-pg
+    tag: latest
+
+  env:
+    file_name:
+      _default: /vault/secrets/env
+
 terraformer:
   nameOverride: "bc-wallet-common-trrfrm-base"
+
+  serviceAccount:
+    create: true
+    annotations: {}
+    name: "bc-wallet-common-trrfrm-init"
+
+  vault:
+    agent:
+      role:
+        _default: bc-wallet-common-trrfrm-init
 
   dataStorage:
     enable: true

@@ -31,10 +31,9 @@
 
 set -e
 
-if [[ -z "${VAULT_AUTH_TOKEN_FILE_PATH}" ]]; then
-  TOKEN_FILE_PATH="/vault/secrets/token" # default value
-else
-  TOKEN_FILE_PATH="${VAULT_AUTH_TOKEN_FILE_PATH}"
+if [[ -z "${TRFRM_PROJECT_NAME}" ]]; then
+  echo "missing TRFRM_PROJECT_NAME value. exit(255)"
+  exit 255
 fi
 
 if [[ -z "${APP_LOCAL_ENV_FILE_PATH}" ]]; then
@@ -43,31 +42,6 @@ else
   ENV_FILE_PATH="${APP_LOCAL_ENV_FILE_PATH}"
 fi
 
-if test -f $TOKEN_FILE_PATH; then
-  export VAULT_TOKEN=$(cat $TOKEN_FILE_PATH)
-fi
-
-if [[ -z "${TRFRM_WORK_DIR}" ]]; then
-  export TRFRM_WORK_DIR="/opt/trrfrm/work/" # default value
-fi
-
-if [[ -z "${TRFRM_DATA_DIR}" ]]; then
-  export TRFRM_DATA_DIR="$TRFRM_WORK_DIR/.terraform" # default value
-fi
-
-if [[ -z "${TF_DATA_DIR}" ]]; then
-  export TF_DATA_DIR=$TRFRM_DATA_DIR # default value
-fi
-
-if [[ -z "${TRFRM_SOURCE_DIR}" ]]; then
-  export TRFRM_SOURCE_DIR="/opt/trrfrm/source" # default value
-fi
-
-echo "/bin/terraform -chdir=$TRFRM_WORK_DIR" $*
-
-cp -R $TRFRM_SOURCE_DIR/. $TRFRM_WORK_DIR/
-
-ls -l $TRFRM_WORK_DIR
 
 if test -f $ENV_FILE_PATH; then
   set -o allexport
@@ -75,4 +49,10 @@ if test -f $ENV_FILE_PATH; then
   set +o allexport
 fi
 
-exec /bin/terraform -chdir=$TRFRM_WORK_DIR "$@"
+cat $ENV_FILE_PATH
+
+echo "ENV SECRET VARS"
+echo $PGPASSWORD
+echo $PGUSER
+
+exec "$@"

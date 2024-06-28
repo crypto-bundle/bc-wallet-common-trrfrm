@@ -1,6 +1,7 @@
 ./build/*
 ./docs
 
+deploy/trrfrm/*/.terraform
 deploy/trrfrm/*/.terraform/*
 deploy/trrfrm/*/.terraform.lock.hcl
 

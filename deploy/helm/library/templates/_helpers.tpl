@@ -72,3 +72,12 @@ Expand the name of the chart.
 {{- end -}}
 {{- printf "%s%s:%d" $schema $host $port -}}
 {{- end -}}
+
+{{- define "trrfrm.dataDir" -}}
+{{- $workDir := pluck .Values.global.env .Values.terraformer.terrraformDirectory.work | first | default .Values.terraformer.terrraformDirectory.work._default -}}
+{{- $projectName := include "app.name" . -}}
+{{- printf "%s/%s/%s" $workDir $projectName ".terrform" -}}
+{{- end -}}
+
+{{- define "subchart.init.containers" -}}
+{{- end -}}

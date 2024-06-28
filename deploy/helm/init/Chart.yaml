@@ -23,5 +23,5 @@ dependencies:
     version: 0.0.1
     repository: "file://../library"
     import-values:
-      - child: terraformer
-        parent: terraformer
+      - parent: terraformer
+        child: terraformer
