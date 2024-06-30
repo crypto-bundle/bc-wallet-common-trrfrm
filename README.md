@@ -37,7 +37,6 @@ First. Create database and user role
 CREATE DATABASE "bc-wallet-common-trrfrm";
 CREATE ROLE "bc-wallet-common-trrfrm-init" PASSWORD 'some_password' NOSUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;
 ALTER DATABASE "bc-wallet-common-trrfrm" OWNER TO "bc-wallet-common-trrfrm-init";
-ALTER DATABASE "bc-wallet-common-trrfrm" ALTER SCHEMA "bc-wallet-common-trrfrm" OWNER TO "bc-wallet-common-trrfrm-init";
 ALTER SEQUENCE "global_states_id_seq" OWNER TO "bc-wallet-common-trrfrm-init";
 ```
 Create bucket in Hashicorp Vault.
