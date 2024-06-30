@@ -35,7 +35,6 @@ Just follow the instructions.
 First. Create database and user role
 ```sql
 CREATE DATABASE "bc-wallet-common-trrfrm";
-USE "bc-wallet-common-trrfrm-init";
 CREATE ROLE "bc-wallet-common-trrfrm-init" PASSWORD 'some_password' NOSUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;
 ALTER DATABASE "bc-wallet-common-trrfrm" OWNER TO "bc-wallet-common-trrfrm-init";
 ALTER DATABASE "bc-wallet-common-trrfrm" ALTER SCHEMA "bc-wallet-common-trrfrm" OWNER TO "bc-wallet-common-trrfrm-init";
