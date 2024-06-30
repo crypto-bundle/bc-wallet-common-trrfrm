@@ -122,4 +122,24 @@ echo "ENV SECRET VARS"
 echo $PGPASSWORD
 echo $PGUSER
 
-exec /bin/terraform -chdir=$TRFRM_SOURCE_DIR "$@"
+mkdir -p $TRRFRM_TMP_EXECUTION_DIR
+cp -R $TRFRM_SOURCE_DIR/* $TRRFRM_TMP_EXECUTION_DIR
+#touch $TRFRM_WORK_DIR/$TRFRM_PROJECT_NAME/.terraform.lock.hcl
+
+if test -f $TRFRM_WORK_DIR/$TRFRM_PROJECT_NAME/.terraform.lock.hcl; then
+  cp $TRFRM_WORK_DIR/$TRFRM_PROJECT_NAME/.terraform.lock.hcl $TRRFRM_TMP_EXECUTION_DIR/.terraform.lock.hcl
+fi
+
+#ln -sf $TRFRM_WORK_DIR/$TRFRM_PROJECT_NAME/.terraform.lock.hcl $TRRFRM_TMP_EXECUTION_DIR/.terraform.lock.hcl
+
+cat $TRFRM_WORK_DIR/$TRFRM_PROJECT_NAME/.terraform.lock.hcl
+
+echo "tree -d $TRFRM_WORK_DIR"
+tree -d $TRFRM_WORK_DIR
+
+echo "ls -la $TRRFRM_TMP_EXECUTION_DIR"
+ls -la $TRRFRM_TMP_EXECUTION_DIR
+
+/bin/terraform -chdir=$TRRFRM_TMP_EXECUTION_DIR "$@"
+
+cp $TRRFRM_TMP_EXECUTION_DIR/.terraform.lock.hcl $TRFRM_WORK_DIR/$TRFRM_PROJECT_NAME/.terraform.lock.hcl

@@ -76,7 +76,11 @@ Expand the name of the chart.
 {{- define "trrfrm.dataDir" -}}
 {{- $workDir := pluck .Values.global.env .Values.terraformer.terrraformDirectory.work | first | default .Values.terraformer.terrraformDirectory.work._default -}}
 {{- $projectName := include "app.name" . -}}
-{{- printf "%s/%s/%s" $workDir $projectName ".terrform" -}}
+{{- printf "%s/%s/%s" $workDir $projectName ".terraform" -}}
+{{- end -}}
+
+{{- define "trrfrm.tmpExecutionDir" -}}
+/tmp/{{ include "app.name" . }}.{{ randNumeric 7 | nospace }}
 {{- end -}}
 
 {{- define "subchart.init.containers" -}}

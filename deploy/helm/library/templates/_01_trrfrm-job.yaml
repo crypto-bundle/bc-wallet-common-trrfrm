@@ -4,6 +4,8 @@ License: MIT NON-AI
 */}}
 
 {{- define "bc-wallet-common-trrfrmr.job.tpl" -}}
+{{- $randTmpDirPostfix := randAlphaNum 9 | nospace -}}
+{{- $data := dict "Values" .Values "Chart" .Chart "TmpDirPostfix" $randTmpDirPostfix -}}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -58,7 +60,7 @@ spec:
             - name: {{ include "pv.prefix" . }}-providers-pv-storage
               mountPath: {{ pluck .Values.global.env .Values.terraformer.terrraformDirectory.work | first | default .Values.terraformer.terrraformDirectory.work._default | quote }}
           env:
-            {{- include "_env_app_terraform" . | nindent 12 }}
+            {{- include "_env_app_terraform" $data | nindent 12 }}
           args:
             - "init"
           {{- range $key, $argument := .Values.terraformer.cli_arguments }}
@@ -79,11 +81,11 @@ spec:
             - name: {{ include "pv.prefix" . }}-providers-pv-storage
               mountPath: {{ pluck .Values.global.env .Values.terraformer.terrraformDirectory.work | first | default .Values.terraformer.terrraformDirectory.work._default | quote }}
           env:
-            {{- include "_env_app_terraform" . | nindent 12 }}
+            {{- include "_env_app_terraform" $data | nindent 12 }}
           args:
             - "apply"
             - "-auto-approve"
           {{- range $key, $argument := .Values.terraformer.cli_arguments }}
-            - "-var={{ $argument.name }}='{{ tpl $argument.value $ }}'"
+            - "-var={{ $argument.name }}={{ tpl $argument.value $ }}"
           {{- end }}
 {{- end -}}

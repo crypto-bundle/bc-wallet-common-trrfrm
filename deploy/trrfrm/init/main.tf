@@ -1,3 +1,8 @@
+provider "postgresql" {
+  sslmode  = "disable"
+  superuser = false
+}
+
 resource "random_password" "init_password" {
   length           = 16
   special          = true
@@ -11,8 +16,8 @@ resource "random_password" "password" {
 }
 
 locals {
-  k8s_init_service_account = "bc-wallet-common-trrfrm-init"
-  k8s_worker_service_account = "bc-wallet-common-trrfrm-worker"
+  k8s_init_service_account = "cryptobundle-bc-wallet-common-trrfrm-init"
+  k8s_worker_service_account = "cryptobundle-bc-wallet-common-trrfrm-worker"
 
   trrfrm_database = "bc-wallet-common-trrfrm"
 

@@ -25,6 +25,8 @@ License: MIT NON-AI
   value: {{ pluck .Values.global.env .Values.terraformer.terrraformDirectory.source_code | first | default .Values.terraformer.terrraformDirectory.source_code._default | quote }}
 - name: TRFRM_WORK_DIR
   value: {{ pluck .Values.global.env .Values.terraformer.terrraformDirectory.work | first | default .Values.terraformer.terrraformDirectory.work._default | quote }}
+- name: TRRFRM_TMP_EXECUTION_DIR
+  value: /tmp/{{ include "app.name" . }}.{{ .TmpDirPostfix }}
 - name: TRFRM_DATA_DIR
   value: {{ include "trrfrm.dataDir" . }}
 - name: TRFRM_PLUGIN_CACHE_DIR

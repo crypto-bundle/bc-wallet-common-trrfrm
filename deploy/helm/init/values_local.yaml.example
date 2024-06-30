@@ -1,0 +1,6 @@
+terraformer:
+  nodeSelector:
+    node-role.k0sproject.io/data: 'true'
+
+  imagePullSecrets:
+    - name: <pull secret name>

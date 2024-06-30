@@ -2,11 +2,14 @@
 
 ## Description
 
-Toolchain for infrastructure preparation flow. Repository contains library Helm-chart for running Terraform jobs. 
+Trrfrm it's wrapper for Hashicorp Terraform application.
+
+Its just tool for infrastructure preparation flow. Repository contains library Helm-chart for running Terraform jobs. 
 Also, repository contains base Docker Terraform wrapper image.
 
-Trrfrm is wrapper for Hashicorp Terraform application. Trrfrm uses PostgreSQL for store terraform state.
-Secret and sensitive data for Trrfrm retrives from Hashcopr Vault.
+Trrfrm uses PostgreSQL for store terraform state.
+Secret and sensitive data for Trrfrm retrives from Hashicopr Vault.
+Also, Trrfrm uses Kubernetes persistent volume for store `.terraform` and Terraform plugin cache directories.
 
 ## Trrfrm-Job library chart
 
@@ -32,14 +35,29 @@ Just follow the instructions.
 First. Create database and user role
 ```sql
 CREATE DATABASE "bc-wallet-common-trrfrm";
+USE "bc-wallet-common-trrfrm-init";
 CREATE ROLE "bc-wallet-common-trrfrm-init" PASSWORD 'some_password' NOSUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;
 ALTER DATABASE "bc-wallet-common-trrfrm" OWNER TO "bc-wallet-common-trrfrm-init";
+ALTER DATABASE "bc-wallet-common-trrfrm" ALTER SCHEMA "bc-wallet-common-trrfrm" OWNER TO "bc-wallet-common-trrfrm-init";
+ALTER SEQUENCE "global_states_id_seq" OWNER TO "bc-wallet-common-trrfrm-init";
 ```
 Create bucket in Hashicorp Vault.
 ```bash
-vault kv put -mount=kv crypto-bundle/bc-wallet-common/trrfrm/init POSTGRESQL_PASSWORD=<some_password of bc-wallet-common-trrfrm-init user>
-vault kv put -mount=kv crypto-bundle/bc-wallet-common/trrfrm/init POSTGRESQL_USERNAME=bc-wallet-common-trrfrm-init
+vault kv put -mount=kv crypto-bundle/bc-wallet-common/trrfrm/init POSTGRESQL_PASSWORD=some_password POSTGRESQL_USERNAME=bc-wallet-common-trrfrm-init
 ```
+Now you need to run terraform application manually for first time.
+
+```bash
+# copy and feel content on env-trrfrm.env file
+cp env-trrfrm-example.env env-trrfrm.env
+# load environment variables from .env file
+source env-trrfrm.env
+# init terraform 
+export $(cat env-trrfrm.env | xargs) && terraform -chdir=deploy/trrfrm/init init
+# apply terraform project
+export $(cat env-trrfrm.env | xargs) && terraform -chdir=deploy/trrfrm/init apply
+```
+
 That's all. Preparation jobs done. Now you can deploy `bc-wallet-common-trrfrmr-base` Helm-chart.
 
 #### Environment variables
@@ -62,12 +80,38 @@ Trrfrm application works with the following environment variables:
 * `TRFRM_WORK_DIR` - path to common `bc-wallet-common-trrfrm` directory on persistent store.
 * `TRFRM_DATA_DIR` - path to data dir of current `Trrfrm-Job` directory on persistent store.
 * `TRFRM_SOURCE_DIR` - path to source code directory of current `Trrfrm Job`.
+* `TRRFRM_TMP_EXECUTION_DIR`
   Terraform source code must be placed on read-only docker overlay file system.
 * `TRFRM_PLUGIN_CACHE_DIR` path to common `bc-wallet-common-trrfrm` Terraform plugins cache directory.
 
 Some environment variables, like `PGPASSWORD` and `PGUSER` passed to Kubernetes Job via _.env_ file
 through [Vault Secret injection](https://developer.hashicorp.com/vault/docs/platform/k8s/injector/examples).
 You can control it via [values.yaml](deploy/helm/library/values.yaml) file.
+
+#### Persistent volumes
+
+Trrfrm uses Kubernetes persistent volume for store `.terraform` and Terraform plugin cache directories. 
+Persistent volume must be mounted in the path which same with `TRFRM_WORK_DIR` value. This PV in one for all instances of Trrfrm-Jobs.
+
+Example structure of PV content:
+
+```text
+/opt/trrfrm/source
+
+/opt/trrfrm/workdir
+├── bc-wallet-avalance-hdwallet
+│   └── .terrform
+├── bc-wallet-bitcoin-hdwallet
+│   └── .terrform
+├── bc-wallet-common-trrfrm
+│   └── .terrform
+├── bc-wallet-polygon-hdwallet
+│   └── .terrform
+├── bc-wallet-tron-hdwallet
+│   └── .terrform
+└── .terraform.d
+    └── plugin-cache
+```
 
 #### Build
 
@@ -118,7 +162,7 @@ docker build \
 docker push bc-wallet-common-trrfrm-self-init:v0.0.1
 docker push bc-wallet-common-trrfrm-self-init:latest
 ```
-gcam 
+
 #### Configure
 You can configure settings of Trrfrm kubernetes by edit [values.yaml](./deploy/helm/init/values.yaml) or
 [values_local.yaml](./deploy/helm/init/values_local.yaml) files.
