@@ -1,0 +1,17 @@
+{{- define "bc-wallet-common-trrfrmr.volume.claim.tpl" -}}
+{{- if .Values.terraformer.providersStorage.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "pv.prefix" . }}-providers-pv-claim
+spec:
+{{- if .Values.terraformer.providersStorage.storageClass }}
+  storageClassName: {{ .Values.terraformer.providersStorage.storageClass }}
+{{- end }}
+  accessModes:
+  - {{ .Values.terraformer.providersStorage.accessMode | default "ReadWriteOnce" }}
+  resources:
+    requests:
+      storage: {{ .Values.terraformer.providersStorage.size }}
+{{- end -}}
+{{- end -}}

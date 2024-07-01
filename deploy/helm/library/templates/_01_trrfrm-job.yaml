@@ -4,17 +4,20 @@ License: MIT NON-AI
 */}}
 
 {{- define "bc-wallet-common-trrfrmr.job.tpl" -}}
+{{- $randTmpDirPostfix := randAlphaNum 9 | nospace -}}
+{{- $data := dict "Values" .Values "Chart" .Chart "TmpDirPostfix" $randTmpDirPostfix -}}
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: {{ include "app.name" . }}
   labels:
     {{- include "app.labels" . | nindent 4 }}
+  {{- with .Values.terraformer.jobAnnotations }}
   annotations:
-    "helm.sh/hook": pre-install,pre-upgrade
-    "helm.sh/hook-weight": {{ .Values.terraformer.hook.weight | quote }}
-    "helm.sh/hook-delete-policy": hook-succeeded
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
+  backoffLimit: 0
   template:
     metadata:
       name: {{ include "app.name" . }}
@@ -32,10 +35,18 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
-        - name: {{ include "app.name" . }}-providers
+        - name: {{ include "app.name" . }}-tmp-dir
           emptyDir: {}
+        - name: {{ include "pv.prefix" . }}-providers-pv-storage
+          persistentVolumeClaim:
+            claimName: {{ include "pv.prefix" . }}-providers-pv-claim
+      {{- with .Values.terraformer.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       serviceAccountName: {{ .Values.terraformer.serviceAccount.name | quote }}
       initContainers:
+{{/*        {{- include "subchart.init.containers" . | nindent 8 }}*/}}
         - name: {{ include "app.name" . }}-init
           image: {{ .Values.terraformer.image.path }}:{{ .Values.terraformer.image.tag }}
           imagePullPolicy: {{ .Values.terraformer.image.pullPolicy }}
@@ -44,13 +55,17 @@ spec:
           resources:
             {{- toYaml .Values.terraformer.resources | nindent 12 }}
           volumeMounts:
-            - name: {{ include "app.name" . }}-providers
-              mountPath: /opt/trrfrm/.terraform/providers
+            - name: {{ include "app.name" . }}-tmp-dir
+              mountPath: /tmp
+            - name: {{ include "pv.prefix" . }}-providers-pv-storage
+              mountPath: {{ pluck .Values.global.env .Values.terraformer.terrraformDirectory.work | first | default .Values.terraformer.terrraformDirectory.work._default | quote }}
           env:
-            {{- include "_env_app_terraform" . | nindent 12 }}
-          command: [ "/bin/terraform", "-chdir=/opt/trrfrm", "init" ]
+            {{- include "_env_app_terraform" $data | nindent 12 }}
           args:
-            - "-var=k8s_namespace='{{ .Release.Namespace}}'"
+            - "init"
+          {{- range $key, $argument := .Values.terraformer.cli_arguments }}
+            - "-var={{ $argument.name }}={{ tpl $argument.value $ }}"
+          {{- end }}
 
       containers:
         - name: {{ include "app.name" . }}-apply
@@ -61,13 +76,16 @@ spec:
           resources:
             {{- toYaml .Values.terraformer.resources | nindent 12 }}
           volumeMounts:
-            - name: {{ include "app.name" . }}-providers
-              mountPath: /opt/trrfrm/.terraform/providers
+            - name: {{ include "app.name" . }}-tmp-dir
+              mountPath: /tmp
+            - name: {{ include "pv.prefix" . }}-providers-pv-storage
+              mountPath: {{ pluck .Values.global.env .Values.terraformer.terrraformDirectory.work | first | default .Values.terraformer.terrraformDirectory.work._default | quote }}
           env:
-            {{- include "_env_app_terraform" . | nindent 12 }}
-          command: [ "/bin/terraform" , "-chdir=/opt/trrfrm", "apply", "-auto-approve"]
+            {{- include "_env_app_terraform" $data | nindent 12 }}
           args:
+            - "apply"
+            - "-auto-approve"
           {{- range $key, $argument := .Values.terraformer.cli_arguments }}
-            - "var={{ $argument.name }}='{{ tpl $argument.value $ }}'"
+            - "-var={{ $argument.name }}={{ tpl $argument.value $ }}"
           {{- end }}
 {{- end -}}
