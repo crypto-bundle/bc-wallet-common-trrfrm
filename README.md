@@ -94,8 +94,6 @@ Persistent volume must be mounted in the path which same with `TRFRM_WORK_DIR` v
 Example structure of PV content:
 
 ```text
-/opt/trrfrm/source
-
 /opt/trrfrm/workdir
 ├── bc-wallet-avalance-hdwallet
 │   └── .terrform
@@ -108,7 +106,17 @@ Example structure of PV content:
 ├── bc-wallet-tron-hdwallet
 │   └── .terrform
 └── .terraform.d
+└── .terraform.d
     └── plugin-cache
+        └── registry.terraform.io
+            ├── cyrilgdn
+            │   └── postgresql
+            │       └── 1.22.0
+            │           └── linux_amd64
+            │               ├── CHANGELOG.md
+            │               ├── LICENSE
+            │               ├── README.md
+            │               └── terraform-provider-postgresql_v1.22.0
 ```
 
 #### Build

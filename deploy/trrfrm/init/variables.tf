@@ -3,7 +3,7 @@ variable "k8s_namespace" {
   default = "default"
 }
 
-variable "customer_name" {
+variable "installment_name" {
   type = string
   default = "cbdl_dev"
 }
