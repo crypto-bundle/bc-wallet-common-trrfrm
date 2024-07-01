@@ -131,6 +131,8 @@ terraformer:
   cli_arguments:
     - name: "k8s_namespace"
       value: "{{ .Release.Namespace }}"
+    - name: "customer_name"
+      value: "{{ .Values.terraformer.customer.name }}"
 
   image:
     pullPolicy: Always

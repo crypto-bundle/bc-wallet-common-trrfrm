@@ -153,3 +153,25 @@ resource "vault_kv_secret_v2" "common_transit_info_bucket" {
     }
   )
 }
+
+resource "vault_kv_secret_v2" "common_jwt_bucket" {
+  mount                      = "kv"
+  name                       = "crypto-bundle/bc-wallet-common/jwt"
+  data_json                  = jsonencode(
+    {
+      JWT_SYSTEM_SECRET_KEY  = random_password.cryptobundle-main-jwt-secret.result
+      JWT_SYSTEM_TOKEN = jwt_hashed_token.cryptobundle-main-token.token
+      JWT_SYSTEM_ACCESS_TOKEN_HASH = sha256(jwt_hashed_token.cryptobundle-main-token.token)
+    }
+  )
+}
+
+resource "vault_kv_secret_v2" "common_jwt_public_bucket" {
+  mount                      = "kv"
+  name                       = "crypto-bundle/bc-wallet-common/jwt_public"
+  data_json                  = jsonencode(
+    {
+      JWT_SYSTEM_ACCESS_TOKEN_HASH = sha256(jwt_hashed_token.cryptobundle-main-token.token)
+    }
+  )
+}

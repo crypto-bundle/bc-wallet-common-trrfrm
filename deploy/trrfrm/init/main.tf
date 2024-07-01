@@ -3,6 +3,13 @@ provider "postgresql" {
   superuser = false
 }
 
+provider "jwt" {
+  # Configuration options
+}
+
+resource "random_uuid" "cryptobundle-installment-uuid" {
+}
+
 resource "random_password" "init_password" {
   length           = 16
   special          = true
@@ -13,6 +20,17 @@ resource "random_password" "password" {
   length           = 16
   special          = true
   override_special = "!#$%&*()-_=+[]{}<>:?"
+}
+
+resource "random_password" "cryptobundle-main-jwt-secret" {
+  length           = 16
+  special          = true
+  override_special = "!#$%&*()-_=+[]{}<>:?"
+}
+
+resource "time_rotating" "cryptobundle-jwt-expires-at" {
+  rfc3339 = formatdate("YYYY-MM-01'T'00:00:00Z", timestamp())
+  rotation_years = 3
 }
 
 locals {

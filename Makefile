@@ -3,7 +3,7 @@ include ./env-trrfrm.env
 export $(shell sed 's/=.*//' env-trrfrm.env)
 
 trrfrm_apply:
-	terraform -chdir=deploy/trrfrm/init apply
+	terraform -chdir=deploy/trrfrm/init apply --var="k8s_namespace=default" --var="customer_name=cbdl_dev_local"
 
 trrfrm_init:
 	terraform -chdir=deploy/trrfrm/init init --reconfigure
@@ -75,14 +75,14 @@ deploy:
 #
 	helm --kube-context $(context) dependency update ./deploy/helm/init
 
-#	helm --kube-context $(context) template --debug \
-#		--dependency-update \
-#		--set "global.env=$(env)" \
-#		--set "terraformer.image.path=$(target_container_path)" \
-#		--set "terraformer.image.tag=$(build_tag)" \
-#		--values=./deploy/helm/init/values.yaml \
-#		--values=./deploy/helm/init/values_local.yaml \
-#		./deploy/helm/init > job.yaml
+	helm --kube-context $(context) template --debug \
+		--dependency-update \
+		--set "global.env=$(env)" \
+		--set "terraformer.image.path=$(target_container_path)" \
+		--set "terraformer.image.tag=$(build_tag)" \
+		--values=./deploy/helm/init/values.yaml \
+		--values=./deploy/helm/init/values_local.yaml \
+		./deploy/helm/init > job.yaml
 
 	helm --kube-context $(context) upgrade \
 		--install $(trrfrm_project_name) \
