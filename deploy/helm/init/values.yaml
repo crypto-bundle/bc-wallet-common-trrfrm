@@ -48,5 +48,5 @@ terraformer:
   cli_arguments:
     - name: "k8s_namespace"
       value: "{{ .Release.Namespace }}"
-    - name: "installer_name"
+    - name: "installment_name"
       value: "{{ .Values.terraformer.installment.name }}"

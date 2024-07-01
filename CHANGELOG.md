@@ -1,5 +1,9 @@
 # Change Log
 
+## [v0.0.2] - 02.07.2024
+### Fixed
+* Fixed bug with `installment_name` trrfrm variable
+
 ## [v0.0.1] - 01.07.2024
 ### Added 
 * Content of [README.md file](./README.md)
