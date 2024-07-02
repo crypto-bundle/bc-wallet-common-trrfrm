@@ -4,7 +4,7 @@ terraformer:
   serviceAccount:
     worker:
       create: true
-      annotations: { }
+      annotations: {}
       name: "cryptobundle-bc-wallet-common-trrfrm-worker"
 
   vault:

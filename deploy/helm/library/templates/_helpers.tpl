@@ -7,14 +7,14 @@ License: MIT NON-AI
 Expand the name of the chart.
 */}}
 {{- define "trrfrm.app.name" -}}
-{{- default .Chart.Name .Values.terraformer.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- default .Values.terraformer.fullnameOverride .Values.terraformer.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Create chart name and version as used by the chart label.
 */}}
 {{- define "trrfrm.app.chart" -}}
-{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+{{- printf "%s-%s" .Values.terraformer.nameOverride .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
