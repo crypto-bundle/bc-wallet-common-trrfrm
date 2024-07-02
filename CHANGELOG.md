@@ -5,7 +5,8 @@
 * Added trrfrm-worker application Helm-chart
 ### Changed
 * Changed Helm-chart Job description - changed Job labels
-* Changed library chart helpers function name, for prevent random values overwrite 
+* Changed library chart helpers function name, for prevent random values overwrite
+* Added creation of trrfrm-worker service account to trrfrm-init Job 
 * Fixed bug with `installment_name` trrfrm variable
 
 ## [v0.0.1] - 01.07.2024
