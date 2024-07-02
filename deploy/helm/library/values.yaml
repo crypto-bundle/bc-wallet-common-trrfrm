@@ -31,9 +31,15 @@ terraformer:
   fullnameOverride: ""
 
   serviceAccount:
-    create: true
-    annotations: {}
-    name: "cryptobundle-bc-wallet-common-trrfrm-worker"
+    init:
+      create: true
+      annotations: {}
+      name: "cryptobundle-bc-wallet-common-trrfrm-init"
+
+    worker:
+      create: true
+      annotations: { }
+      name: "cryptobundle-bc-wallet-common-trrfrm-worker"
 
   podSecurityContext: {}
   # fsGroup: 2000

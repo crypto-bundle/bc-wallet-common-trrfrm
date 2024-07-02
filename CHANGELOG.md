@@ -1,7 +1,11 @@
 # Change Log
 
 ## [v0.0.2] - 02.07.2024
-### Fixed
+### Added
+* Added trrfrm-worker application Helm-chart
+### Changed
+* Changed Helm-chart Job description - changed Job labels
+* Changed library chart helpers function name, for prevent random values overwrite 
 * Fixed bug with `installment_name` trrfrm variable
 
 ## [v0.0.1] - 01.07.2024

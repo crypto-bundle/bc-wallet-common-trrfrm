@@ -6,23 +6,31 @@ License: MIT NON-AI
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "app.name" -}}
+{{- define "trrfrm.app.name" -}}
 {{- default .Chart.Name .Values.terraformer.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "app.chart" -}}
+{{- define "trrfrm.app.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Selector labels
+*/}}
+{{- define "trrfrmr.app.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "trrfrm.app.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "app.labels" -}}
-helm.sh/chart: {{ include "app.chart" . }}
-{{ include "app.selectorLabels" . }}
+{{- define "trrfrm.app.labels" -}}
+helm.sh/chart: {{ include "trrfrm.app.chart" . }}
+{{ include "trrfrmr.app.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -30,17 +38,9 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
 {{/*
-Selector labels
-*/}}
-{{- define "app.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "app.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
-{{- end }}
-
-{{/*
 Hashicorp Vault agent annotations
 */}}
-{{- define "_vault_agent_annotations" }}
+{{- define "_trrfrmr.vault_agent_annotations" }}
 vault.hashicorp.com/agent-inject: {{ pluck .Values.global.env .Values.terraformer.vault.agent.inject | first | default .Values.terraformer.vault.agent.inject._default | quote }}
 vault.hashicorp.com/role: {{ pluck .Values.global.env .Values.terraformer.vault.agent.role | first | default .Values.terraformer.vault.agent.role._default | quote }}
 vault.hashicorp.com/agent-inject-perms: {{ pluck .Values.global.env .Values.terraformer.vault.agent.inject_perms | first | default .Values.terraformer.vault.agent.inject_perms._default | quote }}
@@ -56,14 +56,14 @@ vault.hashicorp.com/agent-inject-template-{{ .Values.terraformer.env.file_name._
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "pv.prefix" -}}
+{{- define "trrfrmr.pv.prefix" -}}
 bc-wallet-common-trrfrm
 {{- end }}
 
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "vault.addr" -}}
+{{- define "trrfrmr.vault.addr" -}}
 {{- $host := pluck .Values.global.env .Values.terraformer.vault.host | first | default .Values.terraformer.vault.host._default -}}
 {{- $port := pluck .Values.global.env .Values.terraformer.vault.port | first | default .Values.terraformer.vault.port._default | int -}}
 {{- $schema := "http://" -}}
@@ -75,13 +75,17 @@ Expand the name of the chart.
 
 {{- define "trrfrm.dataDir" -}}
 {{- $workDir := pluck .Values.global.env .Values.terraformer.terrraformDirectory.work | first | default .Values.terraformer.terrraformDirectory.work._default -}}
-{{- $projectName := include "app.name" . -}}
+{{- $projectName := include "trrfrm.app.name" . -}}
 {{- printf "%s/%s/%s" $workDir $projectName ".terraform" -}}
 {{- end -}}
 
 {{- define "trrfrm.tmpExecutionDir" -}}
-/tmp/{{ include "app.name" . }}.{{ randNumeric 7 | nospace }}
+/tmp/{{ include "trrfrm.app.name" . }}.{{ randNumeric 7 | nospace }}
 {{- end -}}
 
-{{- define "subchart.init.containers" -}}
+{{- define "trrfrmr.serviceAccount.name" -}}
+{{- .Values.terraformer.serviceAccount.worker.name | quote -}}
+{{- end -}}
+
+{{- define "trrfrmr.subchart.init.containers" -}}
 {{- end -}}

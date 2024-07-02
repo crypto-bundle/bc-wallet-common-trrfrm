@@ -27,7 +27,7 @@ storage might be desired by the user.
   {{- if .Values.terraformer.providersStorage.enabled }}
   volumeClaimTemplates:
     - metadata:
-        name: {{ include "app.name" . }}-providers
+        name: {{ include "trrfrm.app.name" . }}-providers
         {{- include "providersVolumeClaim.annotations" . | nindent 6 }}
       spec:
         accessModes:

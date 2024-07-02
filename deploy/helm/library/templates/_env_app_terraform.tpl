@@ -6,7 +6,7 @@ License: MIT NON-AI
 - name: APP_LOCAL_ENV_FILE_PATH
   value: {{ pluck .Values.global.env .Values.terraformer.env.file_name | first | default .Values.terraformer.env.file_name._default | quote }}
 - name: VAULT_ADDR
-  value: {{ include "vault.addr" . | quote }}
+  value: {{ include "trrfrmr.vault.addr" . | quote }}
 - name: VAULT_AUTH_TOKEN_FILE_PATH
   value: {{ pluck .Values.global.env .Values.terraformer.vault.token_path | first | default .Values.terraformer.vault.token_path._default | quote }}
 - name: PGHOST
@@ -20,13 +20,13 @@ License: MIT NON-AI
 - name: PG_SCHEMA_NAME
   value: {{ pluck .Values.global.env .Values.terraformer.db.schema | first | default .Values.terraformer.db.schema._default | quote }}
 - name: TRFRM_PROJECT_NAME
-  value: {{ include "app.name" . }}
+  value: {{ include "trrfrm.app.name" . }}
 - name: TRFRM_SOURCE_DIR
   value: {{ pluck .Values.global.env .Values.terraformer.terrraformDirectory.source_code | first | default .Values.terraformer.terrraformDirectory.source_code._default | quote }}
 - name: TRFRM_WORK_DIR
   value: {{ pluck .Values.global.env .Values.terraformer.terrraformDirectory.work | first | default .Values.terraformer.terrraformDirectory.work._default | quote }}
 - name: TRRFRM_TMP_EXECUTION_DIR
-  value: /tmp/{{ include "app.name" . }}.{{ .TmpDirPostfix }}
+  value: /tmp/{{ include "trrfrm.app.name" . }}.{{ .TmpDirPostfix }}
 - name: TRFRM_DATA_DIR
   value: {{ include "trrfrm.dataDir" . }}
 - name: TRFRM_PLUGIN_CACHE_DIR

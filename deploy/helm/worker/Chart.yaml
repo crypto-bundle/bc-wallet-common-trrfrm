@@ -1,0 +1,27 @@
+annotations:
+  licenses: MIT NON-AI
+
+apiVersion: v2
+name: bc-wallet-common-trrfrmr-worker
+description: A Helm chart for Kubernetes
+
+type: application
+keywords:
+  - crypto-bundle
+  - cryptobundle
+  - infrastructure
+  - terraform
+  - trrfrm
+  - worker
+  - deployment
+
+version: 0.0.1
+appVersion: 0.0.1
+
+dependencies:
+  - name: bc-wallet-common-trrfrmr
+    version: 0.0.1
+    repository: "file://../library"
+    import-values:
+      - parent: terraformer
+        child: terraformer

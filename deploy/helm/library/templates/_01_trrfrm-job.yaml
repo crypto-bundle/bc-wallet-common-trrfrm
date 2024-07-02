@@ -9,9 +9,9 @@ License: MIT NON-AI
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ include "app.name" . }}
+  name: {{ include "trrfrm.app.name" . }}
   labels:
-    {{- include "app.labels" . | nindent 4 }}
+    {{- include "trrfrm.app.labels" . | nindent 4 }}
   {{- with .Values.terraformer.jobAnnotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -20,14 +20,14 @@ spec:
   backoffLimit: 0
   template:
     metadata:
-      name: {{ include "app.name" . }}
+      name: {{ include "trrfrm.app.name" . }}
       labels:
-        {{- include "app.selectorLabels" . | nindent 8 }}
+        {{- include "trrfrmr.app.selectorLabels" . | nindent 8 }}
       annotations:
-      {{- with .Values.terraformer.podAnnotations }}
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-        {{- include "_vault_agent_annotations" . | nindent 8 }}
+      {{- with .Values.terraformer.podAnnotations -}}
+        {{- toYaml . | nindent 8 -}}
+      {{- end -}}
+        {{- include "_trrfrmr.vault_agent_annotations" . | nindent 8 }}
     spec:
       restartPolicy: Never
       {{- with .Values.terraformer.imagePullSecrets }}
@@ -35,19 +35,18 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
-        - name: {{ include "app.name" . }}-tmp-dir
+        - name: {{ include "trrfrm.app.name" . }}-tmp-dir
           emptyDir: {}
-        - name: {{ include "pv.prefix" . }}-providers-pv-storage
+        - name: {{ include "trrfrmr.pv.prefix" . }}-providers-pv-storage
           persistentVolumeClaim:
-            claimName: {{ include "pv.prefix" . }}-providers-pv-claim
+            claimName: {{ include "trrfrmr.pv.prefix" . }}-providers-pv-claim
       {{- with .Values.terraformer.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ .Values.terraformer.serviceAccount.name | quote }}
+      serviceAccountName: {{ include "trrfrmr.serviceAccount.name" . }}
       initContainers:
-{{/*        {{- include "subchart.init.containers" . | nindent 8 }}*/}}
-        - name: {{ include "app.name" . }}-init
+        - name: {{ include "trrfrm.app.name" . }}-init
           image: {{ .Values.terraformer.image.path }}:{{ .Values.terraformer.image.tag }}
           imagePullPolicy: {{ .Values.terraformer.image.pullPolicy }}
           securityContext:
@@ -55,9 +54,9 @@ spec:
           resources:
             {{- toYaml .Values.terraformer.resources | nindent 12 }}
           volumeMounts:
-            - name: {{ include "app.name" . }}-tmp-dir
+            - name: {{ include "trrfrm.app.name" . }}-tmp-dir
               mountPath: /tmp
-            - name: {{ include "pv.prefix" . }}-providers-pv-storage
+            - name: {{ include "trrfrmr.pv.prefix" . }}-providers-pv-storage
               mountPath: {{ pluck .Values.global.env .Values.terraformer.terrraformDirectory.work | first | default .Values.terraformer.terrraformDirectory.work._default | quote }}
           env:
             {{- include "_env_app_terraform" $data | nindent 12 }}
@@ -68,7 +67,7 @@ spec:
           {{- end }}
 
       containers:
-        - name: {{ include "app.name" . }}-apply
+        - name: {{ include "trrfrm.app.name" . }}-apply
           image: {{ .Values.terraformer.image.path }}:{{ .Values.terraformer.image.tag }}
           imagePullPolicy: {{ .Values.terraformer.image.pullPolicy }}
           securityContext:
@@ -76,9 +75,9 @@ spec:
           resources:
             {{- toYaml .Values.terraformer.resources | nindent 12 }}
           volumeMounts:
-            - name: {{ include "app.name" . }}-tmp-dir
+            - name: {{ include "trrfrm.app.name" . }}-tmp-dir
               mountPath: /tmp
-            - name: {{ include "pv.prefix" . }}-providers-pv-storage
+            - name: {{ include "trrfrmr.pv.prefix" . }}-providers-pv-storage
               mountPath: {{ pluck .Values.global.env .Values.terraformer.terrraformDirectory.work | first | default .Values.terraformer.terrraformDirectory.work._default | quote }}
           env:
             {{- include "_env_app_terraform" $data | nindent 12 }}

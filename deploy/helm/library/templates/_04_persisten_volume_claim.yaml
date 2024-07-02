@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ include "pv.prefix" . }}-providers-pv-claim
+  name: {{ include "trrfrmr.pv.prefix" . }}-providers-pv-claim
 spec:
 {{- if .Values.terraformer.providersStorage.storageClass }}
   storageClassName: {{ .Values.terraformer.providersStorage.storageClass }}
