@@ -106,7 +106,7 @@ terraformer:
         _default: true
 
       role:
-        _default: cryptobundle-bc-wallet-common-trrfrm-worker
+        _default: cryptobundle-bc-wallet-common-trrfrm-init
 
       inject_perms:
         _default: 664

@@ -9,6 +9,14 @@ terraformer:
 
   vault:
     agent:
+      inject_secret_path: 'kv/data/crypto-bundle/bc-wallet-common/trrfrm/worker'
+
+      inject_template: |
+        {{- with secret "kv/data/crypto-bundle/bc-wallet-common/trrfrm/worker" -}}
+        PGPASSWORD="{{ .Data.data.POSTGRESQL_PASSWORD }}"
+        PGUSER="{{ .Data.data.POSTGRESQL_USERNAME }}"
+        {{- end -}}
+
       role:
         _default: cryptobundle-bc-wallet-common-trrfrm-worker
 

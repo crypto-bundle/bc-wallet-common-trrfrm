@@ -28,26 +28,6 @@ build_trrfrm:
 	docker push $(target_container_path):$(build_tag)
 	docker push $(target_container_path):latest
 
-build_trrfrm_pg:
-	$(if $(and $(env),$(repository)),,$(error 'env' and/or 'repository' is not defined))
-
-	$(eval build_tag=$(env)-$(shell git rev-parse --short HEAD)-$(shell date +%s))
-	$(eval parent_container_path=postgres:15)
-	$(eval target_container_path=$(repository)/crypto-bundle/bc-wallet-common-trrfrm-pg)
-	$(eval context=$(or $(context),k0s-dev-cluster))
-	$(eval platform=$(or $(platform),linux/amd64))
-
-	docker build \
-		--ssh default=$(SSH_AUTH_SOCK) \
-		--platform $(platform) \
-		--build-arg PARENT_CONTAINER_IMAGE_NAME=$(parent_container_path) \
-		--tag $(target_container_path):$(build_tag) \
-		--tag $(target_container_path):latest \
-		-f trrfrm-self-init-postgres.dockerfile .
-
-	docker push $(target_container_path):$(build_tag)
-	docker push $(target_container_path):latest
-
 deploy:
 	$(if $(and $(env),$(repository)),,$(error 'env' and/or 'repository' is not defined))
 

@@ -1,6 +1,6 @@
 dependencies:
 - name: bc-wallet-common-trrfrmr
   repository: file://../library
-  version: 0.0.1
-digest: sha256:f2a7262818071b9c2cd42b1a2063efe10a878b7379590b4dc85a71eda88e5064
-generated: "2024-07-03T02:30:56.558475+04:00"
+  version: 0.0.2
+digest: sha256:bb92f594686fd87882004810f20d3366c9a2b85d8ca8ff0c6ade99301d9525b2
+generated: "2024-07-03T15:35:35.173276+04:00"
